@@ -1,0 +1,157 @@
+syntax = "proto3";
+option go_package = "github.com/dubbikins/task-rabbit/task";
+import "google/protobuf/timestamp.proto";
+package task;
+
+enum State {
+    PENDING = 0;
+    RUNNING = 1;
+    FINISHED = 2;
+    FAILED = 3;
+}
+
+message Task {
+    string Name = 1;
+}
+
+
+message Filter {
+    string name = 1;
+    string value = 2;
+}
+
+message DeleteTaskResponse {
+    string id = 1;
+    int32 status = 2;
+    string message = 3;
+}
+
+message CreateTaskResponse {
+    string id = 1;
+    int32 status = 2;
+    string message = 3;
+    
+}
+
+message Pagination {
+    int32 page = 1;
+    int32 limit = 2;
+    int32 total = 3;
+}
+
+message Tasks {
+    repeated Task tasks = 1;
+    Pagination pagination = 2;
+}
+
+message UpdateTaskReponse {
+    Task task = 1;
+    string id = 2;
+    int32 status = 3;
+    string message = 4;
+
+}
+
+service Definition {
+    rpc Get(Filter) returns (Task) {}
+    rpc List(Filter) returns (Tasks) {}
+    rpc Create(Task) returns (CreateTaskResponse) {}
+    rpc Update(Task) returns (UpdateTaskReponse) {}
+    rpc Delete(Task) returns (DeleteTaskResponse) {}
+}
+
+message Execution {
+    string Name = 1;
+    string Type = 2;
+    State State= 3;
+    google.protobuf.Timestamp Created = 4;
+    google.protobuf.Timestamp Started = 5;
+    google.protobuf.Timestamp Ended = 6;
+    bytes STDOUT = 100;
+}
+
+message Executions {
+    repeated Execution Executions = 1;
+    Pagination Pagination = 2;
+}
+
+message StopExecutionResponse {
+
+}
+
+service Exec {
+    rpc Start(Task) returns (Execution) {}
+    rpc Stop(Execution) returns (StopExecutionResponse) {}
+    rpc Get(Filter) returns (Execution) {}
+    rpc List(Filter) returns (Executions) {}
+}
+
+
+message Calendar2 {
+    map<int32, CalendarHoliday> CalendarHolidays = 1;
+}
+
+message CreateCalendarResponse {
+
+}
+
+message UpdateCalendarResponse {
+
+}
+
+message DeleteCalendarResponse {
+
+}
+
+enum OFFSET {
+    NONE = 0;
+    FIRST_WEEK = 1;
+    SECOND_WEEK = 2;
+    THIRD_WEEK = 3;
+    FOURTH_WEEK = 4;
+}
+enum Weekday {
+    SUNDAY = 0;
+    MONDAY = 1;
+    TUESDAY = 2;
+    WEDNESDAY = 3;
+    THURSDAY = 4;
+    FRIDAY = 5;
+    SATURDAY = 6;
+}
+
+enum Month {
+    INVALID = 0;
+    JANUARY = 1;
+    FEBRUARY = 2;
+    MARCH = 3;
+    APRIL = 4;
+    MAY = 5;
+    JUNE = 6;
+    JULY = 7;
+    AUGUST = 8;
+    SEPTEMBER = 9;
+    OCTOBER = 10;
+    NOVEMBER = 11;
+    DECEMBER = 12;
+}
+message CalendarHoliday {
+    // offset   int // 1,2,3,4,-1
+	// weekday  time.Weekday
+	// month    time.Month
+    OFFSET offset = 1;
+    Weekday weekday = 2;
+    Month month = 3;
+	int32 day = 4 ;
+	string timezone_name = 5;
+    
+}
+
+
+service Schedule {
+    rpc Get(Filter) returns (Calendar2) {}
+    rpc List(Filter) returns (Calendar2) {}
+    rpc Create(Calendar2) returns (CreateCalendarResponse) {}
+    rpc Delete(Calendar2) returns (DeleteCalendarResponse) {}
+    rpc Update(Calendar2) returns (UpdateCalendarResponse) {}
+}
